@@ -1,6 +1,9 @@
 import pygame
 import pyodbc
-import Login_System
+from Login_System import NewuserLogin, LoginScreen
+from CONSTANTS import Font
+
+
 
 # connection with the sql database for
 conn = pyodbc.connect("driver={SQL Server};"
@@ -12,31 +15,55 @@ cursor = conn.cursor()
 
 # initialise the game
 pygame.init()
+clock = pygame.time.Clock()
 
-# set values for the window size
 screen = pygame.display.set_mode((900, 600))
 
-# set the caption of the window
-pygame.display.set_caption("Pixel Dungeon: a roguelike game")
+# Initialize game states
+login_screen = LoginScreen()
+new_user_login = NewuserLogin(365, 285, 165, 50)
 
-#creates a loop that keeps the game running unless the player exits the game or closes the game window
+# Initial state
+current_state = "menu"  # Start with the login screen
+
+# Create a variable to keep track of button visibility
+button_visible = True
+
+# Main game loop
 running = True
 while running:
-
     for event in pygame.event.get():
-
-        if event.type == pygame.QUIT: # checks if the user closes the window
+        if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN: # checks if the user presses the mouse
-            if event.button == 1:  # checks left mouse button clicked
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if NewUsrBtn.collidepoint(mouse_x, mouse_y): # checks if the NewUsrBtn is clicked
-                    print("New user!")
-                elif ExtUsrBtn.collidepoint(mouse_x, mouse_y): # checks if the ExtUsrBtn is clicked
-                    print("Existing user!")
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if button_visible and login_screen.NewUsrBtn.collidepoint(event.pos):
+                    # Transition to the "New User" state
+                    current_state = "new_user"
+                elif button_visible and login_screen.ExtUsrBtn.collidepoint(event.pos):
+                    print('existing user')
 
-    NewUsrBtn, ExtUsrBtn = Login_System.LoginScreen(screen)
+    screen.fill((0, 0, 0))  # Black background
 
-    # refreshes the window
+    if current_state == "menu":
+        # Draw the buttons directly in the main module
+        pygame.draw.rect(screen, "GREY", login_screen.NewUsrBtn, width=0)
+        pygame.draw.rect(screen, "GREY", login_screen.ExtUsrBtn, width=0)
+
+        font = pygame.font.Font(Font, 42)
+        newuser_textsurface = font.render("New User", True, (255, 255, 255))
+        screen.blit(newuser_textsurface, (385, 225))
+
+        font = pygame.font.Font(Font, 36)
+        extuser_textsurface = font.render("Existing User", True, (255, 255, 255))
+        screen.blit(extuser_textsurface, (370, 325))
+
+    elif current_state == "new_user":
+        # Draw the "New User" input boxes
+        new_user_login.Draw()
+        new_user_login.Update()
+        # Optionally hide the buttons by setting button_visible to False
+        button_visible = False
+
     pygame.display.update()
-
+    clock.tick(60)
