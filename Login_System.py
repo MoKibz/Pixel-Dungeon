@@ -38,48 +38,53 @@ class LoginScreen:
 
 class NewuserLogin():
     def __init__(self, x, y, width, height):
-        self.Font = pygame.font.Font(Font, 40)
+        self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
         #self.Rect = pygame.Rect(365, 285, 165, 50)
 
         self.Active_Colour = pygame.Color('GREEN')
         self.Inactive_Colour = pygame.Color('GREY')
         self.Colour = self.Inactive_Colour
-        self.InputText = ""
+        self.InputText = "Type here!"
 
         self.Active = False
 
 
 
     def Draw(self):
-        Input_txt_surface = self.Font.render(self.InputText, True, self.Colour)
-        width = max(self.Rect.w, Input_txt_surface.get_width() + 10)
-        self.Rect.w = width
-        screen.blit(Input_txt_surface, (self.Rect.x + 5, self.Rect.y + 5))
+        Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
         pygame.draw.rect(screen, self.Colour, self.Rect)
+        screen.blit(Input_txt_surface, (370, 285))
 
-    def Update(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.Rect.collidepoint(event.pos):
-                self.Active = not self.Active
-            else:
-                self.Active = False
-            self.Colour = self.Active_Colour if self.Active else self.Inactive_Colour
-        if event.type == pygame.KEYDOWN:
-            if self.Active:
-                if event.key == pygame.K_RETURN:
+
+    def Update(self):
+
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if self.Rect.collidepoint(event.pos):
+                    self.Active = True
+                else:
                     self.Active = False
-                elif event.key == pygame.K_BACKSPACE:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
                     self.InputText = self.InputText[:-1]
+                elif event.key == pygame.K_RETURN:
+
+                    print('enter')
+
+
                 else:
                     self.InputText += event.unicode
 
-    def is_active(self):
-        return self.Active
 
-    def get_text(self):
-        return self.InputText
 
-    def clear_text(self):
-        self.text = ''
+        if self.Active == True:
+            self.Colour = self.Active_Colour
+        else:
+            self.Colour = self.Inactive_Colour
+
 

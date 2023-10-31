@@ -1,7 +1,7 @@
 import pygame
 import pyodbc
 from Login_System import NewuserLogin, LoginScreen
-from CONSTANTS import Font
+from CONSTANTS import Font, background_image
 
 
 
@@ -11,12 +11,13 @@ conn = pyodbc.connect("driver={SQL Server};"
                       "database=UserLoginDetails; "
                       "trusted_connection=true",
                       autocommit=True)
+
 cursor = conn.cursor()
 
-# initialise the game
+# initialize the game
 pygame.init()
 clock = pygame.time.Clock()
-
+# set the display size
 screen = pygame.display.set_mode((900, 600))
 
 # Initialize game states
@@ -32,18 +33,23 @@ button_visible = True
 # Main game loop
 running = True
 while running:
+
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
+
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
+
             if event.button == 1:
                 if button_visible and login_screen.NewUsrBtn.collidepoint(event.pos):
                     # Transition to the "New User" state
                     current_state = "new_user"
+
                 elif button_visible and login_screen.ExtUsrBtn.collidepoint(event.pos):
                     print('existing user')
 
-    screen.fill((0, 0, 0))  # Black background
+    screen.blit(background_image, (0, 0))
 
     if current_state == "menu":
         # Draw the buttons directly in the main module
@@ -61,9 +67,11 @@ while running:
     elif current_state == "new_user":
         # Draw the "New User" input boxes
         new_user_login.Draw()
+
         new_user_login.Update()
+
+
         # Optionally hide the buttons by setting button_visible to False
         button_visible = False
 
     pygame.display.update()
-    clock.tick(60)
