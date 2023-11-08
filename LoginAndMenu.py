@@ -178,7 +178,7 @@ class GameMenu:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.Rect.collidepoint(event.pos):
                     self.Active = True
-                    quit()
+                    self.pressed = True
                 else:
                     self.Active = False
 
@@ -187,3 +187,5 @@ class GameMenu:
         else:
             self.Colour = self.Inactive_Colour
 
+    def Get_pressed(self):
+        return self.pressed

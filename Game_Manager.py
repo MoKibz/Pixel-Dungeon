@@ -2,7 +2,7 @@ import pygame
 import pyodbc
 from LoginAndMenu import LoginScreen, NewuserLogin, ExistingUserLogin, GameMenu
 from CONSTANTS import Font, background_image
-from CONSTANTS import tilemap, Ground_tile, Wall_tile
+from CONSTANTS import tilemap, Ground_tile, Wall_tile_resized
 
 
 
@@ -22,18 +22,38 @@ Table_exists = cursor.execute("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WH
 #                    "Username VARCHAR()")
 
 
-
 # initialize the game
 pygame.init()
 clock = pygame.time.Clock()
 # set the display size
 screen = pygame.display.set_mode((900, 600))
 
+class Game_map:
+    def __init__(self):
+        self.Map_1 = tilemap
+        self.tile_size = 30
+
+    def Draw_map(self):
+        tile_key = {'G': Ground_tile,
+                    'W': Wall_tile_resized
+                    }
+        for y, row in enumerate(self.Map_1):
+            for x, tile_type in enumerate(row):
+                tile_image = tile_key.get(tile_type)
+                if tile_image:
+                    screen.blit(tile_image,(x * self.tile_size, y * self.tile_size))
+
+class Game_control:
+    def __init__(self):
+        pass
+
+
 # Initialize game states
 login_screen = LoginScreen()
 new_user_login = NewuserLogin(365, 285, 165, 50)
 ext_user_login = ExistingUserLogin(365, 285, 165, 50)
 game_menu_inst = GameMenu(400, 300, 100, 50)
+game_map_inst = Game_map()
 
 # Initial state
 current_state = "menu" # Start with the login screen
@@ -42,12 +62,6 @@ current_state = "menu" # Start with the login screen
 button_visible = True
 Username_printed = False
 
-class Game_map:
-    def __init__(self):
-        pass
-    def Draw_map(self):
-        tile_key = {'G': Ground_tile,
-                    'W': Wall_tile}
 
 
 # def Game():
@@ -58,10 +72,6 @@ class Game_map:
 #         for event in pygame.event.get():
 #             if event.type == pygame.QUIT:
 #                 GameRunning = False
-
-
-
-
 
 
 # loop
@@ -77,7 +87,6 @@ while running:
                     current_state = "new_user"
                 elif button_visible and login_screen.ExtUsrBtn.collidepoint(event.pos):
                     current_state = "ext_user"
-
 
 
     screen.blit(background_image, (0, 0))
@@ -130,17 +139,14 @@ while running:
 
         game_menu_inst.Update()
 
-        # if pressed:
-        #     current_state = 'game_started'
+        pressed = game_menu_inst.Get_pressed()
+
+        if pressed:
+            current_state = 'game_started'
 
     elif current_state == "game_started":
-        print(current_state)
-        pygame.time.delay(5000)
-        quit()
 
-
-
-
+        game_map_inst.Draw_map()
 
 
 
