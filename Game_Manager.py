@@ -2,6 +2,7 @@ import pygame
 import pyodbc
 from LoginAndMenu import LoginScreen, NewuserLogin, ExistingUserLogin, GameMenu
 from CONSTANTS import Font, background_image
+from CONSTANTS import tilemap, Ground_tile, Wall_tile
 
 
 
@@ -41,6 +42,14 @@ current_state = "menu" # Start with the login screen
 button_visible = True
 Username_printed = False
 
+class Game_map:
+    def __init__(self):
+        pass
+    def Draw_map(self):
+        tile_key = {'G': Ground_tile,
+                    'W': Wall_tile}
+
+
 # def Game():
 #
 #     GameRunning = True
@@ -68,10 +77,7 @@ while running:
                     current_state = "new_user"
                 elif button_visible and login_screen.ExtUsrBtn.collidepoint(event.pos):
                     current_state = "ext_user"
-        elif current_state == "game_started":
-            print(current_state)
-            pygame.time.delay(5000)
-            quit()
+
 
 
     screen.blit(background_image, (0, 0))
@@ -122,10 +128,15 @@ while running:
     elif current_state == "game_menu":
         game_menu_inst.draw()
 
-        pressed = game_menu_inst.Update()
+        game_menu_inst.Update()
 
-        if pressed:
-            current_state = 'game_started'
+        # if pressed:
+        #     current_state = 'game_started'
+
+    elif current_state == "game_started":
+        print(current_state)
+        pygame.time.delay(5000)
+        quit()
 
 
 

@@ -169,8 +169,8 @@ class GameMenu:
 
     def Update(self):
 
-        if self.pressed:
-            return self.pressed
+        # if self.pressed:
+        #     return self.pressed
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -178,7 +178,7 @@ class GameMenu:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.Rect.collidepoint(event.pos):
                     self.Active = True
-                    self.pressed = True
+                    quit()
                 else:
                     self.Active = False
 
