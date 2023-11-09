@@ -14,6 +14,9 @@ class Characters:
         self.Weapons = ['gun', 'sword']
         self.Potions = ['health_potion', 'defence_potion']
 
+def Attack(self):
+    pass
+
 class Shooter(Characters):
     def __init__(self):
         super().__init__()
@@ -21,7 +24,8 @@ class Shooter(Characters):
         self.Character_Type = self.attack_range[self.Type[1]]
         self.Stats = [self.health, (self.defence - 20)]
         self.speed = self.movement_speed - 2
-        self.Shooter_item = [self.Weapons[1], ]
+        self.Shooter_item = [self.Weapons[0], self.Potions[0], self.Potions[1]]
+        
 
 class Melee(Characters):
     def __init__(self):
@@ -30,6 +34,7 @@ class Melee(Characters):
         self.Character_Type = self.attack_range[self.Type[0]]
         self.Stats = [self.health, (self.defence + 10)]
         self.speed = self.movement_speed + 5
+        self.Melee_item = [self.Weapons[1], self.Potions[0], self.Potions[1]]
 
 
 
