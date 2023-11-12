@@ -20,12 +20,8 @@ Wall_tile_BRC = pygame.image.load("Images/Dungeon_Tileset_wall_BRC.png")
 Wall_tile_BRC_resized = pygame.transform.scale(Wall_tile_BRC, (30,30))
 Wall_tile_BLC = pygame.image.load("Images/Dungeon_Tileset_wall_BLC.png")
 Wall_tile_BLC_resized = pygame.transform.scale(Wall_tile_BLC, (30,30))
-
-
-
-
-
-
+Melee_char = pygame.image.load("Images/Dungeon_Character_melee.png")
+Melee_char_resized = pygame.transform.scale(Melee_char,(30,30))
 
 tilemap = [
     ['W_L','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W_R'],
@@ -37,7 +33,7 @@ tilemap = [
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
-    ['W_L','G','G','P','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],

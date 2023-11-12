@@ -131,6 +131,7 @@ class ExistingUserLogin:
                 if event.key == pygame.K_BACKSPACE:
                     self.InputText = self.InputText[:-1]
                 elif event.key == pygame.K_RETURN:
+
                     self.Done = not self.Done
                     self.entry_complete = True
                     break
