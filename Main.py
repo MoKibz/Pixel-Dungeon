@@ -5,24 +5,6 @@ from CONSTANTS import *
 import random
 
 
-
-
-# connection with the sql database for
-conn = pyodbc.connect("driver={SQL Server};"
-                      "server=MoKibz\SQLEXPRESS; "
-                      "database=UserLoginDetails; "
-                      "trusted_connection=true",
-                      autocommit=True)
-
-cursor = conn.cursor()
-
-Table_exists = cursor.execute("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'LoginDetails'")
-
-# if Table_exists == 0:
-#     cursor.execute("CREATE TABLE LoginDetails ("
-#                    "Username VARCHAR()")
-
-
 # initialize the game
 pygame.init()
 clock = pygame.time.Clock()
@@ -30,11 +12,17 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((900, 600))
 # set the font
 Game_Font = pygame.font.Font(Font, 50)
-
-
+Level = 1
+# class used to draw the game maps
 class Game_map:
+
     def __init__(self):
-        self.Map_1 = tilemap2
+        self.tilemap = None
+        if Level == 1:
+            self.tilemap = tilemap1
+        elif Level == 2:
+            self.tilemap = tilemap2
+        self.Map_1 = self.tilemap
         self.tile_size = 30
         self.tile_key = {'G': Ground_tile,
                         'W': Wall_tile_resized,
@@ -67,8 +55,8 @@ def Get_Character(Character):
         def __init__(self):
             super().__init__()
             self._Alive = True
-            self.level = 1
-            self.movement_speed = 1
+            self.level = Level
+            self.movement_speed = 2
             self.Type = ['close_range', 'long_range']
             self.attack_range = {self.Type[0]: 30,
                                  self.Type[1]: 210}
@@ -89,15 +77,21 @@ def Get_Character(Character):
             self.Character_Type = self.attack_range[self.Type[1]]
             self.Stats = [self.health, (self.defence - 20)]
             self.speed = self.movement_speed
-            self.Shooter_item = [self.Weapons[1], ]
+            self.Shooter_item = [self.Weapons[1]]
+            self.image = Shooter_char_resized
+            self.Char_rect = self.image.get_rect()
+            self.Char_rect.topleft = (0 * 30, 1 * 30)
+
+        def movement(self, dx, dy):
+            self.Char_rect.x += dx
+            self.Char_rect.y += dy
 
         def Draw(self):
-            pass
+            screen.blit(self.image, self.Char_rect)
 
     class Melee(Characters):
         def __init__(self):
             super().__init__()
-            self.lvl = self.level
             self.Character_Type = self.attack_range[self.Type[0]]
             self.Stats = [self.health, (self.defence + 10)]
             self.speed = self.movement_speed + 5

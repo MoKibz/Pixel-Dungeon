@@ -1,13 +1,18 @@
 import pygame
-# import pyodbc
+import pyodbc
 from CONSTANTS import screen, background_image, Font
 
-# conn = pyodbc.connect("driver={SQL Server};"
-#                       "server=MoKibz\SQLEXPRESS; "
-#                       "database=UserLoginDetails; "
-#                       "trusted_connection=true",
-#                       autocommit=True)
-# cursor = conn.cursor()
+conn = pyodbc.connect("driver={SQL Server};"
+                      "server=MoKibz\SQLEXPRESS; "
+                      "database=UserLoginDetails; "
+                      "trusted_connection=true",
+                      autocommit=True)
+
+table_name = 'LoginDetails'
+column_name = 'Username'
+cursor = conn.cursor()
+
+
 
 
 # create a subroutine for the login system
@@ -38,6 +43,19 @@ class LoginScreen:
 
 class NewuserLogin:
     def __init__(self, x, y, width, height):
+        cursor = conn.cursor()
+        Table_exists = cursor.execute(
+            f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'")
+        cursor.close()
+        if Table_exists == 0:  # if it does not exist then create the table
+            cursor = conn.cursor()
+            cursor.execute("""
+                CREATE TABLE LoginDetails (
+                    Username VARCHAR(255)
+                )
+                """)
+            cursor.close()
+
         self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
         self.entry_complete = False
@@ -77,8 +95,24 @@ class NewuserLogin:
                 if event.key == pygame.K_BACKSPACE:
                     self.InputText = self.InputText[:-1]
                 elif event.key == pygame.K_RETURN:
+                    while not self.Done:
+                        cursor = conn.cursor()
+                        query = f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} = ?"
+                        cursor.execute(query, 'Username')
+                        result = cursor.fetchone()
+                        cursor.close()
+                        if result[0] == 1:
+                            self.Done = True
+                            self.entry_complete = True
+                        else:
+                            self.Done = False
+
+                    # cursor = conn.cursor()
+                    # cursor.execute(f"insert into {table_name} (Username) VALUES ('{self.InputText}')")
+                    # cursor.close()
                     self.Done = not self.Done
                     self.entry_complete = True
+
                     break
                 else:
                     self.InputText += event.unicode
@@ -93,6 +127,17 @@ class NewuserLogin:
 
 class ExistingUserLogin:
     def __init__(self, x, y, width, height):
+
+        # check if the table exists in the database
+        cursor = conn.cursor()
+        Table_exists = cursor.execute(
+            f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'")
+        cursor.close()
+        if Table_exists == 0:  # if it does not exist then create the table
+            cursor = conn.cursor()
+            cursor.execute(f"CREATE TABLE {table_name}({column_name} varchar(20))")
+            cursor.close()
+
         self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
         self.entry_complete = False
@@ -131,9 +176,18 @@ class ExistingUserLogin:
                 if event.key == pygame.K_BACKSPACE:
                     self.InputText = self.InputText[:-1]
                 elif event.key == pygame.K_RETURN:
+                    while not self.Done:
+                        cursor = conn.cursor()
+                        query = f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} = ?"
+                        cursor.execute(query, 'Username')
+                        result = cursor.fetchone()
+                        cursor.close()
+                        if result[0] == 1:
+                            self.Done = False
+                        else:
+                            self.Done = True
+                            self.entry_complete = True
 
-                    self.Done = not self.Done
-                    self.entry_complete = True
                     break
                 else:
                     self.InputText += event.unicode
