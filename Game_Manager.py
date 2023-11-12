@@ -34,16 +34,20 @@ Game_Font = pygame.font.Font(Font, 50)
 
 class Game_map:
     def __init__(self):
-        self.Map_1 = tilemap
+        self.Map_1 = tilemap2
         self.tile_size = 30
         self.tile_key = {'G': Ground_tile,
-                    'W': Wall_tile_resized,
-                    'W_R': Wall_tile_r_resized,
-                    'W_L': Wall_tile_l_resized,
-                    'W_B': Wall_tile_Bottom_resized,
-                    'W_BRC': Wall_tile_BRC_resized,
-                    'W_BLC': Wall_tile_BLC_resized
-                    }
+                        'W': Wall_tile_resized,
+                        'W_R': Wall_tile_r_resized,
+                        'W_L': Wall_tile_l_resized,
+                        'W_B': Wall_tile_Bottom_resized,
+                        'W_BRC': Wall_tile_BRC_resized,
+                        'W_BLC': Wall_tile_BLC_resized,
+                        'W_CR1': Wall_Corner1,
+                        'W_CR2': Wall_Corner2,
+                        'W_CR3': Wall_Corner3,
+                        'W_CR4': Wall_Corner4
+                         }
 
     def Draw_map(self):
         screen.fill("BLACK")
@@ -64,7 +68,7 @@ def Get_Character(Character):
             super().__init__()
             self._Alive = True
             self.level = 1
-            self.movement_speed = 10
+            self.movement_speed = 1
             self.Type = ['close_range', 'long_range']
             self.attack_range = {self.Type[0]: 30,
                                  self.Type[1]: 210}
@@ -78,16 +82,13 @@ def Get_Character(Character):
             if self._Alive == False:
                 print("My boi died")
 
-
-
-
     class Shooter(Characters):
         def __init__(self):
             super().__init__()
             self.lvl = self.level
             self.Character_Type = self.attack_range[self.Type[1]]
             self.Stats = [self.health, (self.defence - 20)]
-            self.speed = self.movement_speed - 2
+            self.speed = self.movement_speed
             self.Shooter_item = [self.Weapons[1], ]
 
         def Draw(self):
@@ -100,79 +101,101 @@ def Get_Character(Character):
             self.Character_Type = self.attack_range[self.Type[0]]
             self.Stats = [self.health, (self.defence + 10)]
             self.speed = self.movement_speed + 5
-
-        def Draw(self):
             self.image = Melee_char_resized
             self.Char_rect = self.image.get_rect()
-            self.Char_rect = [2 * 30, 3 * 30]
+            self.Char_rect.topleft = (0 * 30, 1 * 30)
+
+        def movement(self, dx, dy):
+            self.Char_rect.x += dx
+            self.Char_rect.y += dy
+
+        def Draw(self):
+            screen.blit(self.image, self.Char_rect)
+
+        def Health_bar(self):
+            pass
 
     class Enemies(Characters):
         def __init__(self):
             super().__init__()
 
 
-
-
     if Character == CharacterType[0]:
-        Character = Shooter()
-        Character.Draw()
+        return Shooter()
     elif Character == CharacterType[1]:
-        Character = Melee()
-        Character.Draw()
-
-
-
-
-# def Game_control():
-#     running = True
-#     while running:
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 sys.exit()
-
-
-
-
+        return Melee()
 
 def Game():
     GameMapInst = Game_map()
-    Melee_option_rect = pygame.rect.Rect(400, 200, 200, 70)
-    Melee_option_rect.center = [450, 200]
-    Melee_option_text = Game_Font.render("MELEE", True, 'WHITE')
-    Melee_option_text_rect = Melee_option_text.get_rect(center=Melee_option_rect.center)
-    Shooter_option_rect = pygame.rect.Rect(400, 200, 200, 70)
-    Shooter_option_rect.center = [450, 400]
-    Shooter_option_text = Game_Font.render("SHOOTER", True, 'WHITE')
-    Shooter_option_text_rect = Shooter_option_text.get_rect(center=Shooter_option_rect.center)
-    Character = ""
+    Character = None
     GameState = "character_selection"
+    keys = {"left": False, "right": False, "up": False, "down": False}
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if Melee_option_rect.collidepoint(event.pos):
-                    Character = "melee"
-                    Get_Character(Character)
-                if Shooter_option_rect.collidepoint(event.pos):
-                    Character = "shooter"
-                    Get_Character(Character)
 
+            if GameState == "character_selection":
+                Melee_option_rect = pygame.rect.Rect(400, 200, 200, 70)
+                Melee_option_rect.center = [450, 200]
+                Melee_option_text = Game_Font.render("MELEE", True, 'WHITE')
+                Melee_option_text_rect = Melee_option_text.get_rect(center=Melee_option_rect.center)
+                Shooter_option_rect = pygame.rect.Rect(400, 200, 200, 70)
+                Shooter_option_rect.center = [450, 400]
+                Shooter_option_text = Game_Font.render("SHOOTER", True, 'WHITE')
+                Shooter_option_text_rect = Shooter_option_text.get_rect(center=Shooter_option_rect.center)
+                pygame.draw.rect(screen, "GREY", Melee_option_rect)
+                screen.blit(Melee_option_text, Melee_option_text_rect)
+                pygame.draw.rect(screen, "GREY", Shooter_option_rect)
+                screen.blit(Shooter_option_text, Shooter_option_text_rect)
 
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if Melee_option_rect.collidepoint(event.pos):
+                        Character = Get_Character("melee")
+                        GameState = "game_started"
+                    elif Shooter_option_rect.collidepoint(event.pos):
+                        Character = Get_Character("shooter")
+                        GameState = "game_started"
 
-        if GameState == "character_selection":
-            pygame.draw.rect(screen, "GREY", Melee_option_rect)
-            screen.blit(Melee_option_text, Melee_option_text_rect)
-            pygame.draw.rect(screen, "GREY", Shooter_option_rect)
-            screen.blit(Shooter_option_text, Shooter_option_text_rect)
+            elif GameState == "game_started":
 
+                keys = pygame.key.get_pressed()  # Get the state of all keys
 
+                # Copy the character's current position before attempting to move
+                prev_position = Character.Char_rect.topleft
 
+                dx = 0
+                dy = 0
 
+                if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                    dx = -Character.speed
+                if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                    dx = Character.speed
+                if keys[pygame.K_UP] or keys[pygame.K_w]:
+                    dy = -Character.speed
+                if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                    dy = Character.speed
+
+                # Update the character's position
+                Character.movement(dx, dy)
+
+                # Check for collisions with wall tiles
+                for y, row in enumerate(GameMapInst.Map_1):
+                    for x, tile_type in enumerate(row):
+                        if tile_type.startswith('W') and Character.Char_rect.colliderect(x * GameMapInst.tile_size,
+                                                                                         y * GameMapInst.tile_size,
+                                                                                         GameMapInst.tile_size,
+                                                                                         GameMapInst.tile_size):
+                            # Collision detected with a wall tile, revert the character's position
+                            Character.Char_rect.topleft = prev_position
+
+                GameMapInst.Draw_map()
+                Character.Draw()
 
         pygame.display.update()
         clock.tick(60)
+
 
 
 # Initialize game states
@@ -247,20 +270,17 @@ def Initial_system_manager():
 
             button_visible = False
         elif current_state == "game_menu":
+            # draw the game menu using the instance of the class
             game_menu_inst.draw()
-
+            # checks if the user is pressed the start button
             game_menu_inst.Update()
-
+            # stores the value of pressed
             pressed = game_menu_inst.Get_pressed()
-
-            if pressed:
+            if pressed: # checks if pressed = true
                 current_state = 'game_started'
 
         elif current_state == "game_started":
-
             break
-
-
 
         pygame.display.update()
         clock.tick(1000)

@@ -22,8 +22,15 @@ Wall_tile_BLC = pygame.image.load("Images/Dungeon_Tileset_wall_BLC.png")
 Wall_tile_BLC_resized = pygame.transform.scale(Wall_tile_BLC, (30,30))
 Melee_char = pygame.image.load("Images/Dungeon_Character_melee.png")
 Melee_char_resized = pygame.transform.scale(Melee_char,(30,30))
+Wall_Corner1 = pygame.image.load("Images/Dungeon_Tileset_CORNER1.png")
+Wall_Corner2 = pygame.image.load("Images/Dungeon_Tileset_CORNER2.png")
+Wall_Corner3 = pygame.image.load("Images/Dungeon_Tileset_CORNER3.png")
+Wall_Corner4 = pygame.image.load("Images/Dungeon_Tileset_CORNER4.png")
 
-tilemap = [
+
+
+
+tilemap1 = [
     ['W_L','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W_R'],
     ['G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
@@ -44,5 +51,28 @@ tilemap = [
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_BRC','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_BLC']
+]
+
+tilemap2 = [
+    ['W_L','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W_R'],
+    ['G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_B','W_B','W_B','W_B','W_CR1','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','W','W','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','W_CR3','W_CR4','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_CR2','W_CR1','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
+    ['W_BRC','W_B','W_B','W_B','W_BLC','W_BRC','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_BLC']
 ]
 
