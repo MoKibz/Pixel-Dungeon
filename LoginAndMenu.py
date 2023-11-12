@@ -97,8 +97,8 @@ class NewuserLogin:
                 elif event.key == pygame.K_RETURN:
                     while not self.Done:
                         cursor = conn.cursor()
-                        query = f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} = ?"
-                        cursor.execute(query, 'Username')
+                        query = f"SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
+                        cursor.execute(query, self.InputText)
                         result = cursor.fetchone()
                         cursor.close()
                         if result[0] == 1:
@@ -176,17 +176,16 @@ class ExistingUserLogin:
                 if event.key == pygame.K_BACKSPACE:
                     self.InputText = self.InputText[:-1]
                 elif event.key == pygame.K_RETURN:
-                    while not self.Done:
-                        cursor = conn.cursor()
-                        query = f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} = ?"
-                        cursor.execute(query, 'Username')
-                        result = cursor.fetchone()
-                        cursor.close()
-                        if result[0] == 1:
-                            self.Done = False
-                        else:
-                            self.Done = True
-                            self.entry_complete = True
+                    cursor = conn.cursor()
+                    query = f"SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
+                    cursor.execute(query, self.InputText)
+                    result = cursor.fetchone()
+                    cursor.close()
+                    if result[0] == 1:
+                        self.Done = False
+                    else:
+                        self.Done = True
+                        self.entry_complete = True
 
                     break
                 else:

@@ -274,13 +274,18 @@ def Initial_system_manager():
                 current_state = 'game_started'
 
         elif current_state == "game_started":
+
             break
+
 
         pygame.display.update()
         clock.tick(1000)
+    if current_state == "game_started":
+        return True
 
 
 
 if __name__ == "__main__":
-    Initial_system_manager()
-    Game()
+    Started = Initial_system_manager()
+    if Started:
+        Game()
