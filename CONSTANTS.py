@@ -1,5 +1,6 @@
 
 import pygame
+pygame.init()
 
 # set the display size
 screen = pygame.display.set_mode((900, 600))
@@ -8,6 +9,7 @@ pygame.display.set_caption("Pixel Dungeon: a roguelike game")
 # set the login page background
 background_image = pygame.image.load("Images/Wall.png").convert_alpha()
 Font = "Font/Handjet-Regular.ttf"
+Game_Font = pygame.font.Font(Font, 50)
 Ground_tile = pygame.image.load("Images/Dungeon_Tileset_ground.png")
 Wall_tile = pygame.image.load("Images/Dungeon_Tileset_wall.png")
 Wall_tile_resized = pygame.transform.scale(Wall_tile, (30, 30))

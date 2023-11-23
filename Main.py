@@ -11,7 +11,6 @@ clock = pygame.time.Clock()
 # set the display size
 screen = pygame.display.set_mode((900, 600))
 # set the font
-Game_Font = pygame.font.Font(Font, 50)
 Level = 1
 # class used to draw the game maps
 class Game_map:
@@ -55,15 +54,15 @@ def Get_Character(Character):
         def __init__(self):
             super().__init__()
             self._Alive = True
-            self.level = Level
-            self.movement_speed = 2
-            self.Type = ['close_range', 'long_range']
-            self.attack_range = {self.Type[0]: 30,
-                                 self.Type[1]: 210}
+            self._level = Level
+            self._movement_speed = 2
+            self._Type = ['close_range', 'long_range']
+            self.attack_range = {self._Type[0]: 30,
+                                 self._Type[1]: 210}
             self.defence = 100
             self.health = 100
-            self.Weapons = ['gun', 'sword']
-            self.Potions = ['health_potion', 'defence_potion']
+            self._Weapons = ['gun', 'sword']
+            self._Potions = ['health_potion', 'defence_potion']
 
 
         def is_alive(self):
@@ -73,11 +72,11 @@ def Get_Character(Character):
     class Shooter(Characters):
         def __init__(self):
             super().__init__()
-            self.lvl = self.level
-            self.Character_Type = self.attack_range[self.Type[1]]
+            self.lvl = self._level
+            self.Character_Type = self.attack_range[self._Type[1]]
             self.Stats = [self.health, (self.defence - 20)]
-            self.speed = self.movement_speed
-            self.Shooter_item = [self.Weapons[1]]
+            self.speed = self._movement_speed
+            self.Shooter_item = [self._Weapons[1]]
             self.image = Shooter_char_resized
             self.Char_rect = self.image.get_rect()
             self.Char_rect.topleft = (0 * 30, 1 * 30)
@@ -92,9 +91,9 @@ def Get_Character(Character):
     class Melee(Characters):
         def __init__(self):
             super().__init__()
-            self.Character_Type = self.attack_range[self.Type[0]]
+            self.Character_Type = self.attack_range[self._Type[0]]
             self.Stats = [self.health, (self.defence + 10)]
-            self.speed = self.movement_speed + 5
+            self.speed = self._movement_speed + 5
             self.image = Melee_char_resized
             self.Char_rect = self.image.get_rect()
             self.Char_rect.topleft = (0 * 30, 1 * 30)
@@ -123,13 +122,12 @@ def Game():
     GameMapInst = Game_map()
     Character = None
     GameState = "character_selection"
-    keys = {"left": False, "right": False, "up": False, "down": False}
     running = True
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-
             if GameState == "character_selection":
                 Melee_option_rect = pygame.rect.Rect(400, 200, 200, 70)
                 Melee_option_rect.center = [450, 200]
@@ -190,8 +188,6 @@ def Game():
         pygame.display.update()
         clock.tick(60)
 
-
-
 # Initialize game states
 login_screen = LoginScreen()
 new_user_login = NewuserLogin(365, 285, 165, 50)
@@ -217,7 +213,6 @@ def Initial_system_manager():
                     elif button_visible and login_screen.ExtUsrBtn.collidepoint(event.pos):
                         current_state = "ext_user"
 
-
         screen.blit(background_image, (0, 0))
 
         if current_state == "menu":
@@ -242,11 +237,11 @@ def Initial_system_manager():
 
             Username, Done = new_user_login.GetUsername()
 
-            if Done and not Username_printed:
+            if Done:
                 print(Username)
                 # cursor.execute('')
                 current_state = "game_menu"
-                Username_printed = True
+
 
             button_visible = False
         elif current_state == "ext_user":
@@ -254,13 +249,13 @@ def Initial_system_manager():
 
             ext_user_login.Update()
 
-            Username, Done = ext_user_login.GetUsername()
+            Done = ext_user_login.GetUsername()
 
-            if Done and not Username_printed:
+            if Done:
 
                 # cursor.execute('')
                 current_state = "game_menu"
-                Username_printed = True
+
 
             button_visible = False
         elif current_state == "game_menu":
@@ -277,13 +272,10 @@ def Initial_system_manager():
 
             break
 
-
         pygame.display.update()
         clock.tick(1000)
     if current_state == "game_started":
         return True
-
-
 
 if __name__ == "__main__":
     Started = Initial_system_manager()

@@ -19,6 +19,7 @@ cursor = conn.cursor()
 class LoginScreen:
 
     def __init__(self):
+        # sets the screen background
         screen.blit(background_image, (0, 0))
 
         # Create the new user button rectangle
@@ -82,7 +83,6 @@ class NewuserLogin:
         if self.entry_complete:
             return
 
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -95,25 +95,30 @@ class NewuserLogin:
                 if event.key == pygame.K_BACKSPACE:
                     self.InputText = self.InputText[:-1]
                 elif event.key == pygame.K_RETURN:
-                    while not self.Done:
+                    while self.Done == False:
                         cursor = conn.cursor()
                         query = f"SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
                         cursor.execute(query, self.InputText)
                         result = cursor.fetchone()
                         cursor.close()
-                        if result[0] == 1:
+                        if result:
                             self.Done = True
-                            self.entry_complete = True
                         else:
+                            cursor = conn.cursor()
+                            cursor.execute(f"INSERT INTO LoginDetails (Username) VALUES (?)",self.InputText)
+                            print(cursor.rowcount, "record inserted")
+                            cursor.close()
                             self.Done = False
+
+                            break
 
                     # cursor = conn.cursor()
                     # cursor.execute(f"insert into {table_name} (Username) VALUES ('{self.InputText}')")
                     # cursor.close()
-                    self.Done = not self.Done
-                    self.entry_complete = True
+                    # self.Done = not self.Done
+                    # self.entry_complete = True
 
-                    break
+
                 else:
                     self.InputText += event.unicode
 
@@ -157,7 +162,7 @@ class ExistingUserLogin:
         screen.blit(Input_txt_surface, (370, 290))
 
     def GetUsername(self):
-        return self.InputText, self.Done
+        return self.Done
 
     def Update(self):
 
@@ -183,21 +188,16 @@ class ExistingUserLogin:
                     cursor.close()
                     if result[0] == 1:
                         self.Done = False
+                        break
                     else:
                         self.Done = True
                         self.entry_complete = True
-
-                    break
                 else:
                     self.InputText += event.unicode
-
-
-
         if self.Active == True:
             self.Colour = self.Active_Colour
         else:
             self.Colour = self.Inactive_Colour
-
 
 class GameMenu:
 
