@@ -188,7 +188,7 @@ def Game():
         pygame.display.update()
         clock.tick(60)
 
-# Initialize game states
+# Instantiate game states
 login_screen = LoginScreen()
 new_user_login = NewuserLogin(365, 285, 165, 50)
 ext_user_login = ExistingUserLogin(365, 285, 165, 50)
@@ -236,9 +236,10 @@ def Initial_system_manager():
             new_user_login.Update()
 
             Username, Done = new_user_login.GetUsername()
+            Password, Pwd_done = new_user_login.GetPassword()
 
-            if Done:
-                print(Username)
+            if Done and Pwd_done:
+                print(Username, " ", Password)
                 # cursor.execute('')
                 current_state = "game_menu"
 
@@ -249,10 +250,11 @@ def Initial_system_manager():
 
             ext_user_login.Update()
 
-            Done = ext_user_login.GetUsername()
+            Username, Done = ext_user_login.GetUsername()
+            Password, Pwd_done = ext_user_login.GetPassword()
 
-            if Done:
-
+            if Done and Pwd_done:
+                print(Username, " ", Password)
                 # cursor.execute('')
                 current_state = "game_menu"
 

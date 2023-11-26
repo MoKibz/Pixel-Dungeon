@@ -44,18 +44,7 @@ class LoginScreen:
 
 class NewuserLogin:
     def __init__(self, x, y, width, height):
-        cursor = conn.cursor()
-        Table_exists = cursor.execute(
-            f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'")
-        cursor.close()
-        if Table_exists == 0:  # if it does not exist then create the table
-            cursor = conn.cursor()
-            cursor.execute("""
-                CREATE TABLE LoginDetails (
-                    Username VARCHAR(255)
-                )
-                """)
-            cursor.close()
+
 
         self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
@@ -63,20 +52,38 @@ class NewuserLogin:
 
         self.Active_Colour = pygame.Color('GREEN')
         self.Inactive_Colour = pygame.Color('GREY')
-        self.Colour = self.Inactive_Colour
+        self.Colour_usr = self.Inactive_Colour
+        self.Colour_pwd = self.Inactive_Colour
         self.InputText = ""
         self.Done = False
         self.Active = False
+        self.PasswordRect = pygame.Rect(x, y + 60, width, height)
+        self.PasswordInputText = ""
+        self.PasswordDone = False
+        self.PasswordActive = False
 
 
 
     def Draw(self):
         Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
-        pygame.draw.rect(screen, self.Colour, self.Rect)
+        pygame.draw.rect(screen, self.Colour_usr, self.Rect)
         screen.blit(Input_txt_surface, (370, 290))
+
+        Input_pwd_txt_surface = self.Font.render(self.PasswordInputText, True, 'WHITE')
+        pygame.draw.rect(screen, self.Colour_pwd, self.PasswordRect)
+        screen.blit(Input_pwd_txt_surface, (370, 350))
+
+        Text_usr = self.Font.render("USERNAME:", True, 'BLACK')
+        screen.blit(Text_usr, (250,290))
+
+        Text_pwd = self.Font.render("PASSWORD:", True, 'BLACK')
+        screen.blit(Text_pwd, (250, 350))
 
     def GetUsername(self):
         return self.InputText, self.Done
+
+    def GetPassword(self):
+        return self.PasswordInputText, self.PasswordDone
 
     def Update(self):
 
@@ -91,26 +98,47 @@ class NewuserLogin:
                     self.Active = True
                 else:
                     self.Active = False
+                if self.PasswordRect.collidepoint(event.pos):
+                    self.PasswordActive = True
+                else:
+                    self.PasswordActive = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
-                    self.InputText = self.InputText[:-1]
+                    if self.Active:
+                        self.InputText = self.InputText[:-1]
+                    elif self.PasswordActive:
+                        self.PasswordInputText = self.PasswordInputText[:-1]
+
                 elif event.key == pygame.K_RETURN:
-                    while self.Done == False:
+                    if not self.Done:
+                        # Check if the username already exists
                         cursor = conn.cursor()
-                        query = f"SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
+                        query = "SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
                         cursor.execute(query, self.InputText)
                         result = cursor.fetchone()
                         cursor.close()
-                        if result:
-                            self.Done = True
-                        else:
+
+                        if result[0] == 0:
+                            # If username doesn't exist, insert into the database
                             cursor = conn.cursor()
-                            cursor.execute(f"INSERT INTO LoginDetails (Username) VALUES (?)",self.InputText)
+                            cursor.execute("INSERT INTO LoginDetails (Username, User_level) VALUES (?, ?)",
+                                           self.InputText, 1)
                             print(cursor.rowcount, "record inserted")
                             cursor.close()
-                            self.Done = False
+                            self.Done = True
 
-                            break
+                        else:
+                            print("Username already exists. Choose a different username.")
+                    elif not self.PasswordDone:
+                        # Insert password into the database
+                        cursor = conn.cursor()
+                        cursor.execute("UPDATE LoginDetails SET Password = ? WHERE Username = ?",
+                                       self.PasswordInputText, self.InputText)
+                        print(cursor.rowcount, "record updated")
+                        cursor.close()
+                        self.PasswordDone = True
+                        return
+
 
                     # cursor = conn.cursor()
                     # cursor.execute(f"insert into {table_name} (Username) VALUES ('{self.InputText}')")
@@ -120,28 +148,36 @@ class NewuserLogin:
 
 
                 else:
-                    self.InputText += event.unicode
+                    if self.Active:
+                        self.InputText += event.unicode
+                    elif self.PasswordActive:
+                        self.PasswordInputText += event.unicode
 
 
 
-        if self.Active == True:
-            self.Colour = self.Active_Colour
+        if self.Active:
+            self.Colour_usr = self.Active_Colour
         else:
-            self.Colour = self.Inactive_Colour
+            self.Colour_usr = self.Inactive_Colour
+        if self.PasswordActive:
+            self.Colour_pwd = self.Active_Colour
+        else:
+            self.Colour_pwd = self.Inactive_Colour
+
 
 
 class ExistingUserLogin:
     def __init__(self, x, y, width, height):
 
         # check if the table exists in the database
-        cursor = conn.cursor()
-        Table_exists = cursor.execute(
-            f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'")
-        cursor.close()
-        if Table_exists == 0:  # if it does not exist then create the table
-            cursor = conn.cursor()
-            cursor.execute(f"CREATE TABLE {table_name}({column_name} varchar(20))")
-            cursor.close()
+        # cursor = conn.cursor()
+        # Table_exists = cursor.execute(
+        #     f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'")
+        # cursor.close()
+        # if Table_exists == 0:  # if it does not exist then create the table
+        #     cursor = conn.cursor()
+        #     cursor.execute(f"CREATE TABLE {table_name}({column_name} varchar(20))")
+        #     cursor.close()
 
         self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
@@ -149,21 +185,38 @@ class ExistingUserLogin:
 
         self.Active_Colour = pygame.Color('GREEN')
         self.Inactive_Colour = pygame.Color('GREY')
-        self.Colour = self.Inactive_Colour
+        self.Colour_usr = self.Inactive_Colour
+        self.Colour_pwd = self.Inactive_Colour
         self.InputText = ""
         self.Done = False
         self.Active = False
+        self.PasswordRect = pygame.Rect(x, y + 60, width, height)
+        self.PasswordInputText = ""
+        self.PasswordDone = False
+        self.PasswordActive = False
 
 
 
     def Draw(self):
         Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
-        pygame.draw.rect(screen, self.Colour, self.Rect)
+        pygame.draw.rect(screen, self.Colour_usr, self.Rect)
         screen.blit(Input_txt_surface, (370, 290))
 
-    def GetUsername(self):
-        return self.Done
+        Input_pwd_txt_surface = self.Font.render(self.PasswordInputText, True, 'WHITE')
+        pygame.draw.rect(screen, self.Colour_pwd, self.PasswordRect)
+        screen.blit(Input_pwd_txt_surface, (370, 350))
 
+        Text_usr = self.Font.render("USERNAME:", True, 'BLACK')
+        screen.blit(Text_usr, (250, 290))
+
+        Text_pwd = self.Font.render("PASSWORD:", True, 'BLACK')
+        screen.blit(Text_pwd, (250, 350))
+
+    def GetUsername(self):
+        return self.InputText, self.Done
+
+    def GetPassword(self):
+        return self.PasswordInputText, self.PasswordDone
     def Update(self):
 
         if self.entry_complete:
@@ -177,28 +230,59 @@ class ExistingUserLogin:
                     self.Active = True
                 else:
                     self.Active = False
+                if self.PasswordRect.collidepoint(event.pos):
+                    self.PasswordActive = True
+                else:
+                    self.PasswordActive = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
-                    self.InputText = self.InputText[:-1]
+                    if self.Active:
+                        self.InputText = self.InputText[:-1]
+                    elif self.PasswordActive:
+                        self.PasswordInputText = self.PasswordInputText[:-1]
                 elif event.key == pygame.K_RETURN:
-                    cursor = conn.cursor()
-                    query = f"SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
-                    cursor.execute(query, self.InputText)
-                    result = cursor.fetchone()
-                    cursor.close()
-                    if result[0] == 1:
-                        self.Done = False
-                        break
-                    else:
-                        self.Done = True
-                        self.entry_complete = True
-                else:
-                    self.InputText += event.unicode
-        if self.Active == True:
-            self.Colour = self.Active_Colour
-        else:
-            self.Colour = self.Inactive_Colour
+                    if not self.Done:
+                        # Check if the username exists
+                        cursor = conn.cursor()
+                        query = "SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
+                        cursor.execute(query, self.InputText)
+                        result = cursor.fetchone()
+                        cursor.close()
 
+                        if result[0] == 1:
+                            self.Done = True
+                            return
+                        else:
+                            print("Username does not exist. Enter a valid username.")
+                    elif not self.PasswordDone:
+                        # Check if the entered password matches the stored password
+                        cursor = conn.cursor()
+                        query = "SELECT COUNT(*) FROM LoginDetails WHERE Username = ? AND Password = ?"
+                        cursor.execute(query, self.InputText, self.PasswordInputText)
+                        result = cursor.fetchone()
+                        cursor.close()
+
+                        if result[0] == 1:
+                            self.PasswordDone = True
+                            self.entry_complete = True
+                            return
+                        else:
+                            print("Incorrect password. Enter the correct password.")
+
+                else:
+                    if self.Active:
+                        self.InputText += event.unicode
+                    elif self.PasswordActive:
+                        self.PasswordInputText += event.unicode
+
+        if self.Active:
+            self.Colour_usr = self.Active_Colour
+        else:
+            self.Colour_usr = self.Inactive_Colour
+        if self.PasswordActive:
+            self.Colour_pwd = self.Active_Colour
+        else:
+            self.Colour_pwd = self.Inactive_Colour
 class GameMenu:
 
     def __init__(self, x, y, width, height):
