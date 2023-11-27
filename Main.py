@@ -4,6 +4,13 @@ from LoginAndMenu import LoginScreen, NewuserLogin, ExistingUserLogin, GameMenu
 from CONSTANTS import *
 import random
 
+# create a connection to the database
+conn = pyodbc.connect("driver={SQL Server};"
+                      "server=MoKibz\SQLEXPRESS; "
+                      "database=UserLoginDetails; "
+                      "trusted_connection=true",
+                      autocommit=True)
+
 
 # initialize the game
 pygame.init()

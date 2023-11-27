@@ -129,7 +129,7 @@ class NewuserLogin:
 
                         else:
                             print("Username already exists. Choose a different username.")
-                    elif not self.PasswordDone:
+                    elif not self.PasswordDone and self.Done:
                         # Insert password into the database
                         cursor = conn.cursor()
                         cursor.execute("UPDATE LoginDetails SET Password = ? WHERE Username = ?",
