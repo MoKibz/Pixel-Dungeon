@@ -1,4 +1,3 @@
-
 import pygame
 pygame.init()
 
@@ -6,10 +5,12 @@ pygame.init()
 screen = pygame.display.set_mode((900, 600))
 # set the caption of the window
 pygame.display.set_caption("Pixel Dungeon: a roguelike game")
-# set the login page background
+# set background image for the login pages
 background_image = pygame.image.load("Images/Wall.png").convert_alpha()
+# set the font style
 Font = "Font/Handjet-Regular.ttf"
 Game_Font = pygame.font.Font(Font, 50)
+# Load all the images stored in the file and resize them according to the game window
 Ground_tile = pygame.image.load("Images/Dungeon_Tileset_ground.png")
 Wall_tile = pygame.image.load("Images/Dungeon_Tileset_wall.png")
 Wall_tile_resized = pygame.transform.scale(Wall_tile, (30, 30))
@@ -31,10 +32,7 @@ Wall_Corner1 = pygame.image.load("Images/Dungeon_Tileset_CORNER1.png")
 Wall_Corner2 = pygame.image.load("Images/Dungeon_Tileset_CORNER2.png")
 Wall_Corner3 = pygame.image.load("Images/Dungeon_Tileset_CORNER3.png")
 Wall_Corner4 = pygame.image.load("Images/Dungeon_Tileset_CORNER4.png")
-
-
-
-
+# list containing the tilemaps
 tilemap1 = [
     ['W_L','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W_R'],
     ['G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
@@ -80,4 +78,3 @@ tilemap2 = [
     ['W_L','G','G','G','W_R','W_L','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','W_R'],
     ['W_BRC','W_B','W_B','W_B','W_BLC','W_BRC','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_B','W_BLC']
 ]
-

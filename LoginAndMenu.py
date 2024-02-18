@@ -12,10 +12,7 @@ table_name = 'LoginDetails'
 column_name = 'Username'
 cursor = conn.cursor()
 
-
-
-
-# create a subroutine for the login system
+# create a subroutine for the login screen
 class LoginScreen:
 
     def __init__(self):
@@ -40,16 +37,13 @@ class LoginScreen:
         font = pygame.font.Font(Font, 36)
         extuser_textsurface = font.render("Existing User", True, (255, 255, 255))
         screen.blit(extuser_textsurface, (370, 325))
-
-
+# class used to create the ui for new user and handles the user input when signing in
 class NewuserLogin:
     def __init__(self, x, y, width, height):
-
 
         self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
         self.entry_complete = False
-
         self.Active_Colour = pygame.Color('GREEN')
         self.Inactive_Colour = pygame.Color('GREY')
         self.Colour_usr = self.Inactive_Colour
@@ -61,8 +55,6 @@ class NewuserLogin:
         self.PasswordInputText = ""
         self.PasswordDone = False
         self.PasswordActive = False
-
-
 
     def Draw(self):
         Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
@@ -80,10 +72,10 @@ class NewuserLogin:
         screen.blit(Text_pwd, (250, 350))
 
     def GetUsername(self):
-        return self.InputText, self.Done
+        return self.InputText
 
-    def GetPassword(self):
-        return self.PasswordInputText, self.PasswordDone
+    def GetDone(self):
+        return self.Done
 
     def Update(self):
 
@@ -122,7 +114,7 @@ class NewuserLogin:
                             # If username doesn't exist, insert into the database
                             cursor = conn.cursor()
                             cursor.execute("INSERT INTO LoginDetails (Username, User_level) VALUES (?, ?)",
-                                           self.InputText, 1)
+                                           (self.InputText, 1))
                             print(cursor.rowcount, "record inserted")
                             cursor.close()
                             self.Done = True
@@ -139,21 +131,11 @@ class NewuserLogin:
                         self.PasswordDone = True
                         return
 
-
-                    # cursor = conn.cursor()
-                    # cursor.execute(f"insert into {table_name} (Username) VALUES ('{self.InputText}')")
-                    # cursor.close()
-                    # self.Done = not self.Done
-                    # self.entry_complete = True
-
-
                 else:
                     if self.Active:
                         self.InputText += event.unicode
                     elif self.PasswordActive:
                         self.PasswordInputText += event.unicode
-
-
 
         if self.Active:
             self.Colour_usr = self.Active_Colour
@@ -164,25 +146,12 @@ class NewuserLogin:
         else:
             self.Colour_pwd = self.Inactive_Colour
 
-
-
 class ExistingUserLogin:
     def __init__(self, x, y, width, height):
-
-        # check if the table exists in the database
-        # cursor = conn.cursor()
-        # Table_exists = cursor.execute(
-        #     f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'")
-        # cursor.close()
-        # if Table_exists == 0:  # if it does not exist then create the table
-        #     cursor = conn.cursor()
-        #     cursor.execute(f"CREATE TABLE {table_name}({column_name} varchar(20))")
-        #     cursor.close()
 
         self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
         self.entry_complete = False
-
         self.Active_Colour = pygame.Color('GREEN')
         self.Inactive_Colour = pygame.Color('GREY')
         self.Colour_usr = self.Inactive_Colour
@@ -194,8 +163,6 @@ class ExistingUserLogin:
         self.PasswordInputText = ""
         self.PasswordDone = False
         self.PasswordActive = False
-
-
 
     def Draw(self):
         Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
@@ -213,10 +180,11 @@ class ExistingUserLogin:
         screen.blit(Text_pwd, (250, 350))
 
     def GetUsername(self):
-        return self.InputText, self.Done
+        return self.InputText
 
-    def GetPassword(self):
-        return self.PasswordInputText, self.PasswordDone
+    def GetDone(self):
+        return self.Done
+
     def Update(self):
 
         if self.entry_complete:
@@ -296,9 +264,6 @@ class GameMenu:
         self.Active = False
         self.pressed = False
 
-
-
-
     def draw(self):
         screen.blit(background_image, (0, 0))
         txt_play = self.Font.render(self.Text, True,'WHITE')
@@ -306,9 +271,6 @@ class GameMenu:
         screen.blit(txt_play, (420, 305))
 
     def Update(self):
-
-        # if self.pressed:
-        #     return self.pressed
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

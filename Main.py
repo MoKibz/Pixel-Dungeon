@@ -6,30 +6,46 @@ import random
 
 # create a connection to the database
 conn = pyodbc.connect("driver={SQL Server};"
-                      "server=MoKibz\SQLEXPRESS; "
+                      "server=MOKIBZ\SQLEXPRESS; "
                       "database=UserLoginDetails; "
                       "trusted_connection=true",
                       autocommit=True)
-
 
 # initialize the game
 pygame.init()
 clock = pygame.time.Clock()
 # set the display size
 screen = pygame.display.set_mode((900, 600))
-# set the font
-Level = 1
+Username = ""
+# Instantiate states of the classes
+login_screen = LoginScreen()
+new_user_login = NewuserLogin(365, 285, 165, 50)
+ext_user_login = ExistingUserLogin(365, 285, 165, 50)
+game_menu_inst = GameMenu(400, 300, 100, 50)
+
+def get_level(): # gets the user level from the database
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT User_level FROM LoginDetails WHERE Username = ?", (Username,))
+    Level = cursor.fetchval()
+    cursor.close()
+    return Level
+
 # class used to draw the game maps
 class Game_map:
 
     def __init__(self):
         self.tilemap = None
-        if Level == 1:
+        self.Level = get_level() # uses the get_level subroutine to acquire the player level from their respective account
+
+        # gets the appropriate map for the user according to their level
+        if self.Level == 1:
             self.tilemap = tilemap1
-        elif Level == 2:
+        elif self.Level == 2:
             self.tilemap = tilemap2
-        self.Map_1 = self.tilemap
-        self.tile_size = 30
+        self.Map = self.tilemap
+        self.tile_size = 30 # sets the size of each tile
+        # uses a dictionary to contain the key for each type of tile
         self.tile_key = {'G': Ground_tile,
                         'W': Wall_tile_resized,
                         'W_R': Wall_tile_r_resized,
@@ -43,9 +59,9 @@ class Game_map:
                         'W_CR4': Wall_Corner4
                          }
 
-    def Draw_map(self):
-        screen.fill("BLACK")
-        for y, row in enumerate(self.Map_1):
+    def Draw_map(self): # used to draw the map
+        screen.fill("BLACK") # sets the background colour to black
+        for y, row in enumerate(self.Map):
             for x, tile_type in enumerate(row):
                 tile_image = self.tile_key.get(tile_type)
                 if tile_image:
@@ -56,80 +72,105 @@ class Game_map:
 def Get_Character(Character):
     CharacterType = ["shooter", "melee"]
 
-    class Characters(pygame.sprite.Sprite):
-
-        def __init__(self):
-            super().__init__()
-            self._Alive = True
-            self._level = Level
-            self._movement_speed = 2
-            self._Type = ['close_range', 'long_range']
-            self.attack_range = {self._Type[0]: 30,
-                                 self._Type[1]: 210}
-            self.defence = 100
-            self.health = 100
-            self._Weapons = ['gun', 'sword']
-            self._Potions = ['health_potion', 'defence_potion']
-
-
-        def is_alive(self):
-            if self._Alive == False:
-                print("My boi died")
-
-    class Shooter(Characters):
-        def __init__(self):
-            super().__init__()
-            self.lvl = self._level
-            self.Character_Type = self.attack_range[self._Type[1]]
-            self.Stats = [self.health, (self.defence - 20)]
-            self.speed = self._movement_speed
-            self.Shooter_item = [self._Weapons[1]]
-            self.image = Shooter_char_resized
-            self.Char_rect = self.image.get_rect()
-            self.Char_rect.topleft = (0 * 30, 1 * 30)
-
-        def movement(self, dx, dy):
-            self.Char_rect.x += dx
-            self.Char_rect.y += dy
-
-        def Draw(self):
-            screen.blit(self.image, self.Char_rect)
-
-    class Melee(Characters):
-        def __init__(self):
-            super().__init__()
-            self.Character_Type = self.attack_range[self._Type[0]]
-            self.Stats = [self.health, (self.defence + 10)]
-            self.speed = self._movement_speed + 5
-            self.image = Melee_char_resized
-            self.Char_rect = self.image.get_rect()
-            self.Char_rect.topleft = (0 * 30, 1 * 30)
-
-        def movement(self, dx, dy):
-            self.Char_rect.x += dx
-            self.Char_rect.y += dy
-
-        def Draw(self):
-            screen.blit(self.image, self.Char_rect)
-
-        def Health_bar(self):
-            pass
-
-    class Enemies(Characters):
-        def __init__(self):
-            super().__init__()
-
-
     if Character == CharacterType[0]:
         return Shooter()
     elif Character == CharacterType[1]:
         return Melee()
 
+class Characters():
+
+    def __init__(self):
+        super().__init__()
+        self._Alive = True
+        self._level = 1
+        self._movement_speed = 2
+        self._Type = ['close_range', 'long_range']
+        self.attack_range = {self._Type[0]: 30,
+                             self._Type[1]: 210}
+        self.defence = 100
+        self.health = 100
+        self._Weapons = ['gun', 'sword']
+        self._Potions = ['health_potion', 'defence_potion']
+
+    def Gethealth(self):
+        return self.health
+
+    def is_alive(self):
+        if self._Alive == False:
+            pass
+
+class Shooter(Characters):
+    def __init__(self):
+        super().__init__()
+        self.lvl = self._level
+        self.Character_Type = self.attack_range[self._Type[1]]
+        self.Stats = [self.health, (self.defence - 20)]
+        self.speed = self._movement_speed + 2
+        self.Shooter_item = [self._Weapons[1]]
+        self.image = Shooter_char_resized
+        self.Char_rect = self.image.get_rect()
+        self.Char_rect.topleft = (0 * 30, 1 * 30)
+
+    def movement(self, dx, dy):
+        self.Char_rect.x += dx
+        self.Char_rect.y += dy
+
+    def Draw(self):
+        screen.blit(self.image, self.Char_rect)
+
+class Melee(Characters):
+    def __init__(self):
+        super().__init__()
+        self.Character_Type = self.attack_range[self._Type[0]]
+        self.Stats = [self.health, (self.defence + 10)]
+        self.speed = self._movement_speed + 5
+        self.image = Melee_char_resized
+        self.Char_rect = self.image.get_rect()
+        self.Char_rect.topleft = (0 * 30, 1 * 30)
+
+    def movement(self, dx, dy):
+        self.Char_rect.x += dx
+        self.Char_rect.y += dy
+
+    def Draw(self):
+        screen.blit(self.image, self.Char_rect)
+
+class Enemies(Characters):
+    def __init__(self):
+        super().__init__()
+
+Character = Characters()
+class HealthBar:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.max_health = Character.Gethealth()
+        self.health = self.max_health
+
+    def draw(self, screen):
+        # calculates the width of the health bar based on the current health percentage
+        health_ratio = self.health / self.max_health
+        bar_width = int(self.width * health_ratio)
+
+        # Draws the background of the health bar
+        pygame.draw.rect(screen, (255, 0, 0), (self.x, self.y, self.width, self.height))
+        # Draws the remaining health bar (in green)
+        pygame.draw.rect(screen, (0, 255, 0), (self.x, self.y, bar_width, self.height))
+
+
+    def set_health(self, health):
+        self.health = health
+
 def Game():
+
     GameMapInst = Game_map()
     Character = None
     GameState = "character_selection"
+    player_health = 100
     running = True
+    health_bar = HealthBar(750, 50, 100, 10)
 
     while running:
         for event in pygame.event.get():
@@ -167,20 +208,20 @@ def Game():
                 dx = 0
                 dy = 0
 
-                if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                if keys[pygame.K_LEFT] or keys[pygame.K_a]: # move the character to the left
                     dx = -Character.speed
-                if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                if keys[pygame.K_RIGHT] or keys[pygame.K_d]: # move the character to the right
                     dx = Character.speed
-                if keys[pygame.K_UP] or keys[pygame.K_w]:
+                if keys[pygame.K_UP] or keys[pygame.K_w]: # move the character up
                     dy = -Character.speed
-                if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                if keys[pygame.K_DOWN] or keys[pygame.K_s]: # move the character down
                     dy = Character.speed
 
                 # Update the character's position
                 Character.movement(dx, dy)
 
                 # Check for collisions with wall tiles
-                for y, row in enumerate(GameMapInst.Map_1):
+                for y, row in enumerate(GameMapInst.Map):
                     for x, tile_type in enumerate(row):
                         if tile_type.startswith('W') and Character.Char_rect.colliderect(x * GameMapInst.tile_size,
                                                                                          y * GameMapInst.tile_size,
@@ -189,24 +230,23 @@ def Game():
                             # Collision detected with a wall tile, revert the character's position
                             Character.Char_rect.topleft = prev_position
 
-                GameMapInst.Draw_map()
-                Character.Draw()
+                GameMapInst.Draw_map()  # display the map
+                Character.Draw()  # display the character
+                health_bar.set_health(player_health)
+                health_bar.draw(screen)
 
-        pygame.display.update()
-        clock.tick(60)
 
-# Instantiate game states
-login_screen = LoginScreen()
-new_user_login = NewuserLogin(365, 285, 165, 50)
-ext_user_login = ExistingUserLogin(365, 285, 165, 50)
-game_menu_inst = GameMenu(400, 300, 100, 50)
-# loop
+
+        pygame.display.update() # updating the screen
+        clock.tick(60) # setting the refresh rate at 60 fps
+
+
 def Initial_system_manager():
+    global Username
     # Initial state
     current_state = "menu"  # Start with the login screen
     # Create a variable to keep track of button visibility
     button_visible = True
-    Username_printed = False
     running = True
     while running:
         for event in pygame.event.get():
@@ -236,35 +276,37 @@ def Initial_system_manager():
             screen.blit(extuser_textsurface, (370, 325))
 
         elif current_state == "new_user":
-            # Draw the "New User" input boxes
 
-            new_user_login.Draw()
+            new_user_login.Draw() # used to draw the newuser login stage
 
             new_user_login.Update()
 
-            Username, Done = new_user_login.GetUsername()
-            Password, Pwd_done = new_user_login.GetPassword()
+            Username = new_user_login.GetUsername()
+            # Password, Pwd_done = new_user_login.GetPassword()
+            Done = new_user_login.GetDone()
 
-            if Done and Pwd_done:
-                print(Username, " ", Password)
-                # cursor.execute('')
+            if Done:
+                print(Username)
+
                 current_state = "game_menu"
 
-
             button_visible = False
+
         elif current_state == "ext_user":
             ext_user_login.Draw()
 
             ext_user_login.Update()
 
-            Username, Done = ext_user_login.GetUsername()
-            Password, Pwd_done = ext_user_login.GetPassword()
+            Username = ext_user_login.GetUsername()
 
-            if Done and Pwd_done:
-                print(Username, " ", Password)
-                # cursor.execute('')
+            # Password, Pwd_done = ext_user_login.GetPassword()
+
+            Done = ext_user_login.GetDone()
+
+            if Done:
+                print(Username)
+
                 current_state = "game_menu"
-
 
             button_visible = False
         elif current_state == "game_menu":
@@ -278,7 +320,6 @@ def Initial_system_manager():
                 current_state = 'game_started'
 
         elif current_state == "game_started":
-
             break
 
         pygame.display.update()
@@ -286,7 +327,8 @@ def Initial_system_manager():
     if current_state == "game_started":
         return True
 
-if __name__ == "__main__":
+if __name__ == "__main__": # this if statement is used to ensure the code is executed in the correct order of subroutines
     Started = Initial_system_manager()
     if Started:
+        print(Username)
         Game()
