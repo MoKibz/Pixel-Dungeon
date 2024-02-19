@@ -32,6 +32,10 @@ Wall_Corner1 = pygame.image.load("Images/Dungeon_Tileset_CORNER1.png")
 Wall_Corner2 = pygame.image.load("Images/Dungeon_Tileset_CORNER2.png")
 Wall_Corner3 = pygame.image.load("Images/Dungeon_Tileset_CORNER3.png")
 Wall_Corner4 = pygame.image.load("Images/Dungeon_Tileset_CORNER4.png")
+ShootingBall = pygame.image.load("Images/powerBall.png")
+ShootingBall_resized = pygame.transform.scale(ShootingBall,(10,10))
+Enemy = pygame.image.load("Images/Enemy.png").convert_alpha()
+enemy_resized = pygame.transform.scale(Enemy, (30,30))
 # list containing the tilemaps
 tilemap1 = [
     ['W_L','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W_R'],

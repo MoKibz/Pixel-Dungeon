@@ -1,6 +1,6 @@
 import pygame
 import pyodbc
-from CONSTANTS import screen, background_image, Font
+from CONSTANTS import screen, background_image,Font
 
 conn = pyodbc.connect("driver={SQL Server};"
                       "server=MoKibz\SQLEXPRESS; "
@@ -37,6 +37,7 @@ class LoginScreen:
         font = pygame.font.Font(Font, 36)
         extuser_textsurface = font.render("Existing User", True, (255, 255, 255))
         screen.blit(extuser_textsurface, (370, 325))
+
 # class used to create the ui for new user and handles the user input when signing in
 class NewuserLogin:
     def __init__(self, x, y, width, height):
@@ -44,6 +45,7 @@ class NewuserLogin:
         self.Font = pygame.font.Font(Font, 30)
         self.Rect = pygame.Rect(x, y, width, height)
         self.entry_complete = False
+        # sets the colour
         self.Active_Colour = pygame.Color('GREEN')
         self.Inactive_Colour = pygame.Color('GREY')
         self.Colour_usr = self.Inactive_Colour
@@ -56,7 +58,7 @@ class NewuserLogin:
         self.PasswordDone = False
         self.PasswordActive = False
 
-    def Draw(self):
+    def Draw(self): # displays the objects on the screen
         Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
         pygame.draw.rect(screen, self.Colour_usr, self.Rect)
         screen.blit(Input_txt_surface, (370, 290))
@@ -132,6 +134,7 @@ class NewuserLogin:
                         return
 
                 else:
+                    # checks the characters being inputted and adding them into the text
                     if self.Active:
                         self.InputText += event.unicode
                     elif self.PasswordActive:
@@ -146,6 +149,7 @@ class NewuserLogin:
         else:
             self.Colour_pwd = self.Inactive_Colour
 
+# class used to create the ui for existing user login
 class ExistingUserLogin:
     def __init__(self, x, y, width, height):
 
@@ -165,6 +169,7 @@ class ExistingUserLogin:
         self.PasswordActive = False
 
     def Draw(self):
+        # displays the objects/buttons on the screen
         Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
         pygame.draw.rect(screen, self.Colour_usr, self.Rect)
         screen.blit(Input_txt_surface, (370, 290))
@@ -251,8 +256,8 @@ class ExistingUserLogin:
             self.Colour_pwd = self.Active_Colour
         else:
             self.Colour_pwd = self.Inactive_Colour
-class GameMenu:
 
+class GameMenu: # class that is used to create the ui after the player has signed up or logged in
     def __init__(self, x, y, width, height):
 
         self.Font = pygame.font.Font(Font, 40)
