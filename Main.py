@@ -1,6 +1,5 @@
 import pygame
 import pyodbc
-from LoginAndMenu import LoginScreen, NewuserLogin, ExistingUserLogin, GameMenu
 from CONSTANTS import *
 import random
 
@@ -18,12 +17,354 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((900, 600))
 Username = ""
 projectiles = []  # List to store projectiles
-# Instantiate states of the classes
-login_screen = LoginScreen()
-new_user_login = NewuserLogin(365, 285, 165, 50)
-ext_user_login = ExistingUserLogin(365, 285, 165, 50)
-game_menu_inst = GameMenu(400, 300, 100, 50)
 
+
+
+import pygame
+import pyodbc
+from CONSTANTS import screen, background_image,Font
+
+conn = pyodbc.connect("driver={SQL Server};"
+                      "server=MoKibz\SQLEXPRESS; "
+                      "database=UserLoginDetails; "
+                      "trusted_connection=true",
+                      autocommit=True)
+
+table_name = 'LoginDetails'
+column_name = 'Username'
+cursor = conn.cursor()
+
+# create a subroutine for the login screen
+class LoginScreen:
+
+    def __init__(self):
+        # sets the screen background
+        screen.blit(background_image, (0, 0))
+
+        # Create the new user button rectangle
+        self.NewUsrBtn = pygame.Rect(365, 225, 165, 50)
+
+        # Create the existing user button rectangle
+        self.ExtUsrBtn = pygame.Rect(365, 325, 165, 50)
+
+        # Draw the buttons
+        pygame.draw.rect(screen, "GREY", self.NewUsrBtn, width=0)
+        pygame.draw.rect(screen, "GREY", self.ExtUsrBtn, width=0)
+
+        # Draw the button text
+        font = pygame.font.Font(Font, 42)
+        newuser_textsurface = font.render("New User", True, (255, 255, 255))
+        screen.blit(newuser_textsurface, (385, 225))
+
+        font = pygame.font.Font(Font, 36)
+        extuser_textsurface = font.render("Existing User", True, (255, 255, 255))
+        screen.blit(extuser_textsurface, (370, 325))
+
+# class used to create the ui for new user and handles the user input when signing in
+class NewuserLogin:
+    def __init__(self, x, y, width, height):
+
+        self.Font = pygame.font.Font(Font, 30)
+        self.Rect = pygame.Rect(x, y, width, height)
+        self.entry_complete = False
+        # sets the colour
+        self.Active_Colour = pygame.Color('GREEN')
+        self.Inactive_Colour = pygame.Color('GREY')
+        self.Colour_usr = self.Inactive_Colour
+        self.Colour_pwd = self.Inactive_Colour
+        self.InputText = ""
+        self.Done = False
+        self.Active = False
+        self.PasswordRect = pygame.Rect(x, y + 60, width, height)
+        self.PasswordInputText = ""
+        self.PasswordDone = False
+        self.PasswordActive = False
+
+    def Draw(self): # displays the objects on the screen
+        Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
+        pygame.draw.rect(screen, self.Colour_usr, self.Rect)
+        screen.blit(Input_txt_surface, (370, 290))
+
+        Input_pwd_txt_surface = self.Font.render(self.PasswordInputText, True, 'WHITE')
+        pygame.draw.rect(screen, self.Colour_pwd, self.PasswordRect)
+        screen.blit(Input_pwd_txt_surface, (370, 350))
+
+        Text_usr = self.Font.render("USERNAME:", True, 'BLACK')
+        screen.blit(Text_usr, (250,290))
+
+        Text_pwd = self.Font.render("PASSWORD:", True, 'BLACK')
+        screen.blit(Text_pwd, (250, 350))
+
+    def GetUsername(self):
+        return self.InputText
+
+    def GetDone(self):
+        return self.Done
+
+    def Update(self):
+
+        if self.entry_complete:
+            return
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if self.Rect.collidepoint(event.pos):
+                    self.Active = True
+                else:
+                    self.Active = False
+                if self.PasswordRect.collidepoint(event.pos):
+                    self.PasswordActive = True
+                else:
+                    self.PasswordActive = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    if self.Active:
+                        self.InputText = self.InputText[:-1]
+                    elif self.PasswordActive:
+                        self.PasswordInputText = self.PasswordInputText[:-1]
+
+                elif event.key == pygame.K_RETURN:
+                    if not self.Done:
+                        # Check if the username already exists
+                        cursor = conn.cursor()
+                        query = "SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
+                        cursor.execute(query, self.InputText)
+                        result = cursor.fetchone()
+                        cursor.close()
+
+                        if result[0] == 0:
+                            # If username doesn't exist, insert into the database
+                            cursor = conn.cursor()
+                            cursor.execute("INSERT INTO LoginDetails (Username, User_level) VALUES (?, ?)",
+                                           (self.InputText, 1))
+                            print(cursor.rowcount, "record inserted")
+                            cursor.close()
+                            self.Done = True
+
+                        else:
+                            print("Username already exists. Choose a different username.")
+                    elif not self.PasswordDone and self.Done:
+                        # Insert password into the database
+                        cursor = conn.cursor()
+                        cursor.execute("UPDATE LoginDetails SET Password = ? WHERE Username = ?",
+                                       self.PasswordInputText, self.InputText)
+                        print(cursor.rowcount, "record updated")
+                        cursor.close()
+                        self.PasswordDone = True
+                        return
+
+                else:
+                    # checks the characters being inputted and adding them into the text
+                    if self.Active:
+                        self.InputText += event.unicode
+                    elif self.PasswordActive:
+                        self.PasswordInputText += event.unicode
+
+        if self.Active:
+            self.Colour_usr = self.Active_Colour
+        else:
+            self.Colour_usr = self.Inactive_Colour
+        if self.PasswordActive:
+            self.Colour_pwd = self.Active_Colour
+        else:
+            self.Colour_pwd = self.Inactive_Colour
+
+# class used to create the ui for existing user login
+class ExistingUserLogin:
+    def __init__(self, x, y, width, height):
+
+        self.Font = pygame.font.Font(Font, 30)
+        self.Rect = pygame.Rect(x, y, width, height)
+        self.entry_complete = False
+        self.Active_Colour = pygame.Color('GREEN')
+        self.Inactive_Colour = pygame.Color('GREY')
+        self.Colour_usr = self.Inactive_Colour
+        self.Colour_pwd = self.Inactive_Colour
+        self.InputText = ""
+        self.Done = False
+        self.Active = False
+        self.PasswordRect = pygame.Rect(x, y + 60, width, height)
+        self.PasswordInputText = ""
+        self.PasswordDone = False
+        self.PasswordActive = False
+
+    def Draw(self):
+        # displays the objects/buttons on the screen
+        Input_txt_surface = self.Font.render(self.InputText, True, 'WHITE')
+        pygame.draw.rect(screen, self.Colour_usr, self.Rect)
+        screen.blit(Input_txt_surface, (370, 290))
+
+        Input_pwd_txt_surface = self.Font.render(self.PasswordInputText, True, 'WHITE')
+        pygame.draw.rect(screen, self.Colour_pwd, self.PasswordRect)
+        screen.blit(Input_pwd_txt_surface, (370, 350))
+
+        Text_usr = self.Font.render("USERNAME:", True, 'BLACK')
+        screen.blit(Text_usr, (250, 290))
+
+        Text_pwd = self.Font.render("PASSWORD:", True, 'BLACK')
+        screen.blit(Text_pwd, (250, 350))
+
+    def GetUsername(self):
+        return self.InputText
+
+    def GetDone(self):
+        return self.Done
+
+    def Update(self):
+
+        if self.entry_complete:
+            return
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if self.Rect.collidepoint(event.pos):
+                    self.Active = True
+                else:
+                    self.Active = False
+                if self.PasswordRect.collidepoint(event.pos):
+                    self.PasswordActive = True
+                else:
+                    self.PasswordActive = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    if self.Active:
+                        self.InputText = self.InputText[:-1]
+                    elif self.PasswordActive:
+                        self.PasswordInputText = self.PasswordInputText[:-1]
+                elif event.key == pygame.K_RETURN:
+                    if not self.Done:
+                        # Check if the username exists
+                        cursor = conn.cursor()
+                        query = "SELECT COUNT(*) FROM LoginDetails WHERE Username = ?"
+                        cursor.execute(query, self.InputText)
+                        result = cursor.fetchone()
+                        cursor.close()
+
+                        if result[0] == 1:
+                            self.Done = True
+                            return
+                        else:
+                            print("Username does not exist. Enter a valid username.")
+                    elif not self.PasswordDone:
+                        # Check if the entered password matches the stored password
+                        cursor = conn.cursor()
+                        query = "SELECT COUNT(*) FROM LoginDetails WHERE Username = ? AND Password = ?"
+                        cursor.execute(query, self.InputText, self.PasswordInputText)
+                        result = cursor.fetchone()
+                        cursor.close()
+
+                        if result[0] == 1:
+                            self.PasswordDone = True
+                            self.entry_complete = True
+                            return
+                        else:
+                            print("Incorrect password. Enter the correct password.")
+
+                else:
+                    if self.Active:
+                        self.InputText += event.unicode
+                    elif self.PasswordActive:
+                        self.PasswordInputText += event.unicode
+
+        if self.Active:
+            self.Colour_usr = self.Active_Colour
+        else:
+            self.Colour_usr = self.Inactive_Colour
+        if self.PasswordActive:
+            self.Colour_pwd = self.Active_Colour
+        else:
+            self.Colour_pwd = self.Inactive_Colour
+
+
+
+class GameMenu: # class that is used to create the ui after the player has signed up or logged in
+    def __init__(self, x, y, width, height):
+
+        self.Font = pygame.font.Font(Font, 40)
+        self.Rect = pygame.Rect(x, y, width, height)
+        self.Text = "PLAY"
+        self.Rect_leaderboard = pygame.Rect(x, y + 60, width + 20, height)
+        self.Text_leaderboard = "LEADERBOARD"
+        self.Active_Colour = pygame.Color('GREEN')
+        self.Inactive_Colour = pygame.Color('GREY')
+        self.Colour = self.Inactive_Colour
+        self.Active = False
+        self.pressed = False
+
+    def draw(self):
+        screen.blit(background_image, (0, 0))
+        txt_play = self.Font.render(self.Text, True,'WHITE')
+        pygame.draw.rect(screen, self.Colour, self.Rect)
+        screen.blit(txt_play, (420, 305))
+        txt_leaderboard = self.Font.render(self.Text_leaderboard, True, 'WHITE')
+        pygame.draw.rect(screen, self.Colour, self.Rect_leaderboard)
+        screen.blit(txt_leaderboard, (410, 365))
+
+    def Update(self):
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if self.Rect.collidepoint(event.pos):
+                    self.Active = True
+                    self.pressed = True
+                elif self.Rect_leaderboard.collidepoint(event.pos):
+                    self.pressed = "YES"
+                    print("Leaderboard button pressed ", self.pressed)
+
+                else:
+                    self.Active = False
+
+        if self.Active == True:
+            self.Colour = self.Active_Colour
+        else:
+            self.Colour = self.Inactive_Colour
+
+    def Get_pressed(self):
+        if self.pressed == True:
+            return "PLAY"
+        elif self.pressed == "YES":
+            return "LEADERBOARD"
+        else:
+            return False
+
+
+class LeaderboardMenu(): # class that is used to display the leaderboard
+    def __init__(self, player1, player2, player3, player4, player5):
+        self.Font = pygame.font.Font(Font, 40)
+        self.player1 = player1
+        self.player2 = player2
+        self.player3 = player3
+        self.player4 = player4
+        self.player5 = player5
+        self.Rect = pygame.Rect(350, 500, 100, 50)
+        self.text = "BACK"
+        self.pressed = False
+
+    def draw(self): # draws the leaderboard
+        pygame.draw.rect(screen, 'GREY', (300, 100, 200, 300)) # draws the box
+        for i in range(5): # draws the leaderboard
+            player_name = getattr(self, f"player{i + 1}") # gets the name of the player
+            screen.blit(self.Font.render(player_name, True, 'WHITE'), (360, 150 + (i * 50))) # draws the name
+
+        pygame.draw.rect(screen, 'GREEN', self.Rect) # draws the button
+        screen.blit(self.Font.render(self.text, True, 'WHITE'), (370, 510)) # draws the text
+
+    def Update(self): # updates the leaderboard
+        for event in pygame.event.get(): # checks for events
+            if event.type == pygame.QUIT: # exits the game
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN: # checks if the mouse is clicked
+                if self.Rect.collidepoint(event.pos): # checks if the mouse is colliding with the button
+                    self.pressed = True
+
+    def Get_pressed(self): # returns the state of the button
+        return self.pressed
 
 def get_level(): # gets the user level from the database
 
@@ -32,6 +373,30 @@ def get_level(): # gets the user level from the database
     Level = cursor.fetchval()
     cursor.close()
     return Level
+
+# Instantiate states of the classes
+login_screen = LoginScreen()
+new_user_login = NewuserLogin(365, 285, 165, 50)
+ext_user_login = ExistingUserLogin(365, 285, 165, 50)
+game_menu_inst = GameMenu(400, 300, 100, 50)
+
+def DisplayLeaderboard(): # displays the leaderboard
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT Username FROM LoginDetails ORDER BY User_level DESC")
+    Usernames = cursor.fetchall()
+    cursor.close()
+
+    username_list = [] # empty list to store the usernames
+    for row in Usernames: # Iterate over each row in the results set
+        # Extract the username from the current row and append it to the username list
+        username = row[0]  # the username from the current row is extracted
+        username_list.append(username)  # the username is appended to the username list
+
+    leaderboard = LeaderboardMenu(username_list[0], username_list[1], username_list[2], username_list[3], username_list[4]) # instantiates the leaderboardmenu class
+    leaderboard.draw() # draws the leaderboard
+    leaderboard.Update() # updates the leaderboard
+    return leaderboard.Get_pressed() # returns if the back button has been pressed
 
 # class used to draw the game maps
 class Game_map:
@@ -438,12 +803,20 @@ def Initial_system_manager():
         elif current_state == "game_menu":
             # draw the game menu using the instance of the class
             game_menu_inst.draw()
-            # checks if the user is pressed the start button
+            # update the game menu
             game_menu_inst.Update()
             # stores the value of pressed
             pressed = game_menu_inst.Get_pressed()
-            if pressed: # checks if pressed = true
-                current_state = 'game_started'
+            print(pressed)
+            if pressed == "PLAY": # if the user presses the play button
+                current_state = 'game_started' # switches the state
+            elif pressed == "LEADERBOARD": # if the user presses the leaderboard button
+                current_state = 'LeaderboardMenu' # switches the state
+
+        elif current_state == "LeaderboardMenu":
+            pressed = DisplayLeaderboard() # displays the leaderboard
+            if pressed:
+                current_state = "game_menu" # switches the state
 
         elif current_state == "game_started":
             break
@@ -458,3 +831,4 @@ if __name__ == "__main__": # this if statement is used to ensure the code is exe
     if Started:
         print(Username)
         Game()
+
